@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎈 Balloon Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #0a0b0e;
+  --bg-card: #10121a;
+  --bg-hover: #161924;
+  --border: #1e2235;
+  --border-hi: #2a3050;
+  --text: #e0e4f0;
+  --text-muted: #6b7499;
+  --text-dim: #3a3f58;
+  --accent: #00e5a0;
+  --danger: #ff4466;
+  --font-mono: 'Space Mono', monospace;
+  --font-head: 'Syne', sans-serif;
+  --radius: 6px;
+  --left-w: 240px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 52px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-family: var(--font-head);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+.logo span { color: var(--accent); }
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+.badge.hidden { display: none; }
+.dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.header-right { display: flex; align-items: center; gap: 10px; font-size: 11px; color: var(--text-muted); }
+
+.btn-icon {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all .15s;
+}
+.btn-icon:hover { border-color: var(--border-hi); color: var(--text); background: var(--bg-hover); }
+
+/* Layout */
+.layout {
+  display: flex;
+  height: calc(100vh - 52px);
+}
+
+/* Left sidebar */
+.left {
+  width: var(--left-w);
+  min-width: var(--left-w);
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.left-hdr {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-head);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pill {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1px 8px;
+  color: var(--text-muted);
+}
+.part-list { overflow-y: auto; flex: 1; }
+.part-empty {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 11px;
+  padding: 30px 14px;
+  line-height: 1.7;
+}
+.part-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.part-item:hover { background: var(--bg-hover); }
+.part-avatar {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.part-names { flex: 1; min-width: 0; }
+.part-name {
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+.part-user {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Main */
+.main { flex: 1; overflow-y: auto; padding: 20px; min-width: 0; }
+
+/* Setup card */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.row { display: flex; gap: 8px; }
+
+.inp {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+}
+.inp:focus { border-color: var(--accent); }
+.inp::placeholder { color: var(--text-dim); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: var(--radius);
+  padding: 9px 18px;
+  font-family: var(--font-head);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.btn-primary:hover { background: #00ffb3; }
+.btn-primary:disabled { opacity: .5; cursor: default; }
+
+/* Status */
+.status-bar {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  min-height: 16px;
+}
+.status-bar.error { color: var(--danger); }
+.status-bar.ok { color: var(--accent); }
+
+/* Balloon config */
+.balloon-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.btn-ghost {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+.slots { display: flex; flex-wrap: wrap; gap: 8px; }
+.slot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+}
+.slot-ltr {
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 800;
+  min-width: 14px;
+}
+.slot-color {
+  width: 24px; height: 24px;
+  border: none; border-radius: 50%;
+  cursor: pointer; padding: 0;
+  background: none;
+}
+.slot-color::-webkit-color-swatch-wrapper { padding: 0; }
+.slot-color::-webkit-color-swatch { border: 2px solid rgba(255,255,255,.15); border-radius: 50%; }
+.slot-name {
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  width: 72px;
+  outline: none;
+  padding: 2px 0;
+}
+.slot-name:focus { border-bottom-color: var(--accent); }
+.slot-rm {
+  background: none; border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 13px;
+  transition: color .15s;
+}
+.slot-rm:hover { color: var(--danger); }
+
+/* Queue */
+.queue-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.queue-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.queue-label {
+  font-family: var(--font-head);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+}
+.stats { display: flex; gap: 8px; font-size: 11px; color: var(--text-muted); }
+
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl thead th {
+  background: var(--bg);
+  padding: 9px 14px;
+  font-family: var(--font-head);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.tbl tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+.tbl tbody tr:hover:not(.empty-tr) { background: var(--bg-hover); }
+.tbl tbody td { padding: 10px 14px; font-size: 12px; }
+
+.row-done { opacity: .3; }
+.row-new { animation: flash 1.5s ease-out; }
+@keyframes flash { 0%{background:rgba(0,229,160,.15)} 100%{background:transparent} }
+
+.cell-pos { font-size: 10px; color: var(--text-muted); font-weight: 700; width: 40px; }
+.cell-prob { font-family: var(--font-head); font-size: 17px; font-weight: 800; width: 80px; }
+.cell-name { font-weight: 700; }
+.cell-user { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.cell-time { font-size: 11px; color: var(--text-muted); width: 80px; }
+.cell-act  { width: 100px; }
+
+.bln-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,.04);
+  border-radius: 10px;
+  padding: 3px 8px 3px 3px;
+}
+.bln-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+.bln-lbl { font-size: 10px; font-weight: 700; }
+
+.btn-deliver {
+  background: none;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-deliver:hover { background: var(--accent); color: #000; }
+
+.btn-undo {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-undo:hover { border-color: var(--text-muted); color: var(--text-muted); }
+
+.empty-tr td { padding: 50px 20px; text-align: center; }
+.empty-icon { font-size: 40px; opacity: .25; margin-bottom: 10px; }
+.empty-txt { font-family: var(--font-head); color: var(--text-muted); font-size: 13px; margin-bottom: 4px; }
+.empty-sub { font-size: 11px; color: var(--text-dim); }
+
+/* Toast */
+#toasts {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  min-width: 240px;
+  max-width: 300px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  animation: tin .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: all;
+}
+.toast.out { animation: tout .3s ease forwards; }
+@keyframes tin  { from{transform:translateX(110%);opacity:0} to{transform:none;opacity:1} }
+@keyframes tout { to{transform:translateX(110%);opacity:0} }
+.toast-dot { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display:flex; align-items:center; justify-content:center; font-size:12px; }
+.toast-title { font-family: var(--font-head); font-size: 12px; font-weight: 700; }
+.toast-sub  { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+.spin { animation: spin .6s linear infinite; display: inline-block; }
+@keyframes spin { to{ transform: rotate(360deg); } }
+
+/* CORS warning banner */
+.cors-warn {
+  background: #1a1200;
+  border: 1px solid #443300;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 11px;
+  color: #ffb347;
+  line-height: 1.6;
+  display: none;
+}
+.cors-warn.show { display: block; }
+  </style>
+</head>
+<body>
+
+<div id="toasts"></div>
+
+<header class="header">
+  <div class="logo">BALLOON<span>TRACKER</span></div>
+  <div id="badge" class="badge hidden">
+    <span class="dot"></span>
+    <span id="badge-title">—</span>
+    <span id="badge-id" style="font-size:11px;color:var(--text-muted)"></span>
+  </div>
+  <div class="header-right">
+    <span id="last-up">—</span>
+    <button id="btn-refresh" class="btn-icon" title="Atualizar agora">↻</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Left sidebar: participants -->
+  <aside class="left">
+    <div class="left-hdr">
+      EQUIPES / PESSOAS
+      <span id="part-count" class="pill">0</span>
+    </div>
+    <div id="part-list" class="part-list">
+      <div class="part-empty">Nenhum participante.<br>Inicie um contest primeiro.</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- CORS warning -->
+    <div id="cors-warn" class="cors-warn">
+      ⚠️ Não foi possível buscar os dados do VJudge. Isso pode acontecer por bloqueio de CORS do proxy.
+      Tente novamente em alguns segundos — o sistema vai tentar outro proxy automaticamente.
+    </div>
+
+    <!-- Setup -->
+    <div class="card">
+      <div class="card-title">Iniciar Maratona</div>
+      <div class="row">
+        <input id="contest-inp" class="inp" type="text"
+          placeholder="Link ou ID do contest (ex: 123456 ou vjudge.net/contest/123456)"
+          autocomplete="off" />
+        <button id="btn-start" class="btn-primary">INICIAR</button>
+      </div>
+      <div id="status" class="status-bar"></div>
+    </div>
+
+    <!-- Balloon config -->
+    <div class="card">
+      <div class="balloon-hdr">
+        <span class="card-title" style="margin:0">BALÕES POR QUESTÃO</span>
+        <button id="btn-add" class="btn-ghost">+ Questão</button>
+      </div>
+      <div id="slots" class="slots">
+        <span style="color:var(--text-dim);font-size:11px">Nenhum balão. Clique em + Questão para adicionar.</span>
+      </div>
+    </div>
+
+    <!-- Queue -->
+    <div class="queue-card">
+      <div class="queue-hdr">
+        <span class="queue-label">FILA DE ENTREGA</span>
+        <div class="stats">
+          <span id="stat-p">0 pendentes</span>
+          <span style="color:var(--text-dim)">·</span>
+          <span id="stat-d">0 entregues</span>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>EQUIPE</th>
+              <th>QUESTÃO</th>
+              <th>BALÃO</th>
+              <th>HORÁRIO</th>
+              <th>AÇÃO</th>
+            </tr>
+          </thead>
+          <tbody id="queue-body">
+            <tr class="empty-tr">
+              <td colspan="6">
+                <div class="empty-icon">🎈</div>
+                <div class="empty-txt">Nenhuma submissão AC ainda</div>
+                <div class="empty-sub">Configure um contest acima para começar</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ─── Storage keys ───────────────────────────────────────────────────────── */
+const LS = {
+  colors:    'bt_colors',
+  delivered: 'bt_delivered',
+  contest:   'bt_contest',
+  names:     'bt_names',
+};
+
+/* ─── State ──────────────────────────────────────────────────────────────── */
+let state = {
+  contestId:   null,
+  contestTitle: '',
+  queue:       [],
+  participants: {},
+  balloonColors: load(LS.colors)    || {},
+  delivered:    load(LS.delivered)  || {},
+  customNames:  load(LS.names)      || {},
+  lastUpdate:   null,
+  polling:      null,
+};
+
+function load(k)  { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }
+function save(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+/* ─── CORS Proxies (tried in order, rotate on failure) ──────────────────── */
+const PROXIES = [
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+];
+let proxyIdx = 0;
+
+async function fetchVJudge(path) {
+  const base = `https://vjudge.net${path}`;
+  for (let attempt = 0; attempt < PROXIES.length; attempt++) {
+    const idx = (proxyIdx + attempt) % PROXIES.length;
+    try {
+      const res = await fetch(PROXIES[idx](base), { signal: AbortSignal.timeout(8000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      proxyIdx = idx;
+      document.getElementById('cors-warn').classList.remove('show');
+      return await res.json();
+    } catch (e) {
+      console.warn(`Proxy ${idx} failed:`, e.message);
+    }
+  }
+  document.getElementById('cors-warn').classList.add('show');
+  throw new Error('Todos os proxies falharam');
+}
+
+/* ─── Parse contest ID from input ───────────────────────────────────────── */
+function parseContestId(raw) {
+  raw = raw.trim();
+  const m = raw.match(/contest\/(\d+)/i) || raw.match(/^(\d+)$/);
+  return m ? m[1] : null;
+}
+
+/* ─── Fetch contest data from VJudge ─────────────────────────────────────── */
+async function fetchContest(id) {
+  const data = await fetchVJudge(`/contest/rank/single/${id}`);
+  return data;
+}
+
+/* ─── Build queue from VJudge rank data ──────────────────────────────────── */
+function buildQueue(data) {
+  const participants = {};
+  const acs = [];
+
+  const submissions = data.submissions || [];
+  const participants_raw = data.participants || {};
+
+  // Map participant id -> username/name
+  for (const [uid, info] of Object.entries(participants_raw)) {
+    const username = Array.isArray(info) ? info[0] : (info.userName || info[0] || uid);
+    const nick     = Array.isArray(info) ? (info[1] || info[0]) : (info.nickName || info[0] || uid);
+    participants[uid] = { username, nick };
+  }
+
+  // Collect ACs (status=0 means AC in VJudge)
+  const seenKey = new Set();
+  for (const sub of submissions) {
+    const [uid, probIdx, status, time] = sub;
+    if (status !== 0) continue;
+    const letter = String.fromCharCode(65 + probIdx);
+    const key    = `${uid}_${letter}`;
+    if (seenKey.has(key)) continue;
+    seenKey.add(key);
+
+    const p = participants[uid] || { username: String(uid), nick: String(uid) };
+    const customName = state.customNames[p.username];
+    acs.push({
+      key,
+      uid: String(uid),
+      userName: p.username,
+      displayName: customName || p.nick || p.username,
+      problemLetter: letter,
+      submitTime: (data.begin * 1000) + (time * 1000),
+      delivered: !!state.delivered[key],
+      _isNew: false,
+    });
+  }
+
+  // Sort by submission time
+  acs.sort((a, b) => a.submitTime - b.submitTime);
+
+  // Build participants map
+  const parts = {};
+  for (const [uid, info] of Object.entries(participants)) {
+    parts[info.username] = {
+      displayName: state.customNames[info.username] || info.nick || info.username,
+      uid,
+    };
+  }
+
+  return { queue: acs, participants: parts, title: data.title || `Contest #${state.contestId}` };
+}
+
+/* ─── Poll loop ──────────────────────────────────────────────────────────── */
+async function poll(showToasts) {
+  if (!state.contestId) return;
+  try {
+    const data = await fetchContest(state.contestId);
+    const { queue, participants, title } = buildQueue(data);
+
+    state.contestTitle = title;
+    state.participants  = participants;
+    state.lastUpdate    = Date.now();
+
+    if (showToasts) {
+      const prevKeys = new Set(state.queue.map(q => q.key));
+      for (const item of queue) {
+        if (!prevKeys.has(item.key)) {
+          item._isNew = true;
+          showToast(item);
+        }
+      }
+    }
+
+    state.queue = queue;
+    render();
+    setStatus(`Atualizado às ${fmtTime(state.lastUpdate)}`, 'ok');
+  } catch (e) {
+    setStatus('Erro ao atualizar: ' + e.message, 'error');
+  }
+}
+
+/* ─── Start contest ──────────────────────────────────────────────────────── */
+async function startContest() {
+  const raw = document.getElementById('contest-inp').value.trim();
+  const id  = parseContestId(raw);
+
+  if (!id) {
+    setStatus('ID inválido. Use o número do contest ou o link completo.', 'error');
+    return;
+  }
+
+  state.contestId  = id;
+  state.queue      = [];
+  state.participants = {};
+  save(LS.contest, id);
+
+  const btn = document.getElementById('btn-start');
+  btn.textContent = '...';
+  btn.disabled    = true;
+  setStatus('Buscando dados...', '');
+
+  try {
+    await poll(false);
+    updateBadge();
+    startPolling();
+  } catch (e) {
+    setStatus('Não foi possível carregar o contest. Verifique o ID.', 'error');
+  } finally {
+    btn.textContent = 'INICIAR';
+    btn.disabled    = false;
+  }
+}
+
+function startPolling() {
+  if (state.polling) clearInterval(state.polling);
+  state.polling = setInterval(() => poll(true), 30000);
+}
+
+/* ─── Deliver / undo ─────────────────────────────────────────────────────── */
+function deliver(key) {
+  const item = state.queue.find(q => q.key === key);
+  if (!item) return;
+  item.delivered = true;
+  state.delivered[key] = true;
+  save(LS.delivered, state.delivered);
+  renderQueue();
+}
+
+function undo(key) {
+  const item = state.queue.find(q => q.key === key);
+  if (!item) return;
+  item.delivered = false;
+  delete state.delivered[key];
+  save(LS.delivered, state.delivered);
+  renderQueue();
+}
+
+/* ─── Balloon config ─────────────────────────────────────────────────────── */
+const DEFAULT_COLORS = [
+  '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c',
+  '#3498db','#9b59b6','#e91e8c','#00bcd4','#ff5722',
+  '#8bc34a','#ff9800','#795548','#607d8b','#673ab7'
+];
+
+function getLetters() {
+  return Object.keys(state.balloonColors)
+    .filter(k => k.length === 1 && k >= 'A' && k <= 'Z')
+    .sort();
+}
+
+function addSlot() {
+  const existing = getLetters();
+  let next = 'A';
+  for (let i = 0; i < 26; i++) {
+    const l = String.fromCharCode(65 + i);
+    if (!existing.includes(l)) { next = l; break; }
+  }
+  const color = DEFAULT_COLORS[existing.length % DEFAULT_COLORS.length];
+  state.balloonColors[next]           = color;
+  state.balloonColors[`${next}_name`] = next;
+  save(LS.colors, state.balloonColors);
+  renderSlots();
+}
+
+function removeSlot(letter) {
+  delete state.balloonColors[letter];
+  delete state.balloonColors[`${letter}_name`];
+  save(LS.colors, state.balloonColors);
+  renderSlots();
+  renderQueue();
+}
+
+function updateColor(letter, color) {
+  state.balloonColors[letter] = color;
+  save(LS.colors, state.balloonColors);
+  renderSlots();
+  renderQueue();
+}
+
+function updateName(letter, name) {
+  state.balloonColors[`${letter}_name`] = name;
+  save(LS.colors, state.balloonColors);
+}
+
+function getColor(letter) { return state.balloonColors[letter] || '#555577'; }
+function getName(letter)  { return state.balloonColors[`${letter}_name`] || letter; }
+
+/* ─── Render: slots ──────────────────────────────────────────────────────── */
+function renderSlots() {
+  const c = document.getElementById('slots');
+  const letters = getLetters();
+  if (!letters.length) {
+    c.innerHTML = '<span style="color:var(--text-dim);font-size:11px">Nenhum balão. Clique em + Questão para adicionar.</span>';
+    return;
+  }
+  c.innerHTML = letters.map((l, i) => {
+    const color = state.balloonColors[l] || DEFAULT_COLORS[i % DEFAULT_COLORS.length];
+    const name  = state.balloonColors[`${l}_name`] || '';
+    return `<div class="slot" data-l="${l}">
+      <span class="slot-ltr" style="color:${color}">${l}</span>
+      <input type="color" class="slot-color" value="${color}" onchange="updateColor('${l}',this.value)" />
+      <input type="text" class="slot-name" value="${esc(name)}" placeholder="nome" onblur="updateName('${l}',this.value)" />
+      <button class="slot-rm" onclick="removeSlot('${l}')" title="Remover">✕</button>
+    </div>`;
+  }).join('');
+}
+
+/* ─── Render: queue ──────────────────────────────────────────────────────── */
+function renderQueue() {
+  const tbody   = document.getElementById('queue-body');
+  const queue   = state.queue;
+  const pending = queue.filter(q => !q.delivered).length;
+  const done    = queue.filter(q => q.delivered).length;
+
+  document.getElementById('stat-p').textContent = `${pending} pendente${pending!==1?'s':''}`;
+  document.getElementById('stat-d').textContent = `${done} entregue${done!==1?'s':''}`;
+
+  if (!queue.length) {
+    tbody.innerHTML = `<tr class="empty-tr"><td colspan="6">
+      <div class="empty-icon">🎈</div>
+      <div class="empty-txt">Nenhuma submissão AC ainda</div>
+      <div class="empty-sub">Aguardando polling do VJudge...</div>
+    </td></tr>`;
+    return;
+  }
+
+  let pos = 1;
+  tbody.innerHTML = queue.map(item => {
+    const color = getColor(item.problemLetter);
+    const name  = getName(item.problemLetter);
+    const cls   = [item.delivered ? 'row-done' : '', item._isNew ? 'row-new' : ''].filter(Boolean).join(' ');
+    const posLabel = item.delivered ? '✓' : pos++;
+    const showUser = item.displayName !== item.userName;
+
+    return `<tr class="${cls}" data-key="${item.key}">
+      <td class="cell-pos">${posLabel}</td>
+      <td>
+        <div class="cell-name">${esc(item.displayName)}</div>
+        ${showUser ? `<div class="cell-user">${esc(item.userName)}</div>` : ''}
+      </td>
+      <td class="cell-prob" style="color:${color}">${item.problemLetter}</td>
+      <td>
+        <div class="bln-badge">
+          <span class="bln-dot" style="background:${color}">🎈</span>
+          <span class="bln-lbl" style="color:${color}">${esc(name)}</span>
+        </div>
+      </td>
+      <td class="cell-time">${fmtTime(item.submitTime)}</td>
+      <td class="cell-act">
+        ${item.delivered
+          ? `<button class="btn-undo"    onclick="undo('${item.key}')">↩ Desfazer</button>`
+          : `<button class="btn-deliver" onclick="deliver('${item.key}')">🎈 Entregar</button>`}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ─── Render: participants ───────────────────────────────────────────────── */
+function renderParticipants() {
+  const list    = document.getElementById('part-list');
+  const counter = document.getElementById('part-count');
+  const entries = Object.entries(state.participants);
+
+  counter.textContent = entries.length;
+
+  if (!entries.length) {
+    list.innerHTML = '<div class="part-empty">Nenhum participante.<br>Inicie um contest primeiro.</div>';
+    return;
+  }
+
+  entries.sort((a, b) => (a[1].displayName||a[0]).localeCompare(b[1].displayName||b[0]));
+
+  list.innerHTML = entries.map(([username, info]) => {
+    const name = info.displayName || username;
+    return `<div class="part-item">
+      <div class="part-avatar">${initials(name)}</div>
+      <div class="part-names">
+        <div class="part-name">${esc(name)}</div>
+        ${name !== username ? `<div class="part-user">${esc(username)}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ─── Render: badge ──────────────────────────────────────────────────────── */
+function updateBadge() {
+  const badge = document.getElementById('badge');
+  if (state.contestId) {
+    badge.classList.remove('hidden');
+    document.getElementById('badge-title').textContent = state.contestTitle || `Contest #${state.contestId}`;
+    document.getElementById('badge-id').textContent    = `#${state.contestId}`;
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+/* ─── Full render ────────────────────────────────────────────────────────── */
+function render() {
+  updateBadge();
+  renderSlots();
+  renderQueue();
+  renderParticipants();
+  document.getElementById('last-up').textContent = state.lastUpdate
+    ? `atualizado ${fmtRelative(state.lastUpdate)}`
+    : '—';
+}
+
+/* ─── Toast ──────────────────────────────────────────────────────────────── */
+function showToast(item) {
+  const color = getColor(item.problemLetter);
+  const name  = getName(item.problemLetter);
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `
+    <div class="toast-dot" style="background:${color}">🎈</div>
+    <div>
+      <div class="toast-title">${esc(item.displayName)} — ${item.problemLetter}</div>
+      <div class="toast-sub">${esc(name)} · ${fmtTime(item.submitTime)}</div>
+    </div>`;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => {
+    t.classList.add('out');
+    t.addEventListener('animationend', () => t.remove());
+  }, 4500);
+}
+
+/* ─── Helpers ────────────────────────────────────────────────────────────── */
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtTime(ms) {
+  if (!ms) return '—';
+  return new Date(ms).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+function fmtRelative(ms) {
+  const ago = Date.now() - ms;
+  if (ago < 60000)   return `${Math.floor(ago/1000)}s atrás`;
+  if (ago < 3600000) return `${Math.floor(ago/60000)}min atrás`;
+  return fmtTime(ms);
+}
+function initials(name) {
+  return (name||'?').split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
+}
+function setStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className   = 'status-bar' + (type ? ' ' + type : '');
+}
+
+/* ─── Events ─────────────────────────────────────────────────────────────── */
+document.getElementById('btn-start').addEventListener('click', startContest);
+document.getElementById('contest-inp').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startContest();
+});
+document.getElementById('btn-add').addEventListener('click', addSlot);
+document.getElementById('btn-refresh').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-refresh');
+  btn.classList.add('spin');
+  try { await poll(true); } finally { btn.classList.remove('spin'); }
+});
+
+/* ─── Init ───────────────────────────────────────────────────────────────── */
+(async function init() {
+  renderSlots();
+
+  // Restore last contest
+  const savedId = load(LS.contest);
+  if (savedId) {
+    state.contestId = savedId;
+    document.getElementById('contest-inp').value = savedId;
+    setStatus('Restaurando contest anterior...', '');
+    updateBadge();
+    await poll(false);
+    startPolling();
+  }
+
+  // Keep "last updated" label fresh
+  setInterval(() => {
+    if (state.lastUpdate) {
+      document.getElementById('last-up').textContent = `atualizado ${fmtRelative(state.lastUpdate)}`;
+    }
+  }, 30000);
+})();
+</script>
+</body>
+</html>
